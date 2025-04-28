@@ -1,0 +1,68 @@
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+<style>
+    body {
+        margin: 42px 24px;
+    }
+    p {
+        font-size: 19px;
+    }
+</style>
+
+<title>Tutorials - Installation</title>
+<h1>Tutorials - Installation</h1>
+<h2>Topic 0.2</h2>
+
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+
+<p>Install the electronic cash library to be able to perform transactions like balance inquiry, read beneficiary's information and transfer electronic cash.</p>
+
+<p>In the repository folder look for the file <code class="language-javascript">ecash-supply.js</code> and add the line below in your html page.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;script src="./assets/js/ecash-supply.js"&#62;&#60;/script&#62;
+
+</code></pre>
+<br>
+
+<p>Add element for information not found.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;div id="api-404" hidden&#62;&#60;/div&#62;
+
+</code></pre>
+<br>
+
+SCRIPT
+<pre><code class="language-javascript">
+    &#60;script&#62;
+        document.getElementById("api-404").appendChild(_uz.api);
+    &#60;/script&#62;
+
+</code></pre>
+<br>
+
+<p>Add values on variable <code class="language-javascript">_uz.z</code> and <code class="language-javascript">_uz.qr</code> to set QR parameters</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    &#60;script&#62;
+        _uz.z = { qrScan: { arr: [], hashes: [] }, digit: { height: 12 }, slider: { single: {} } };
+        _uz.qr = {
+            length: 72,
+            delay: 128,
+            interval: 0,
+            hash: "9h65t34t31p7s&83*4392*81839e5c732a8181sh232%ic421o232n490s$321w23e59b$a472p921p"
+        };
+
+        _uz.qrhash({ hash: _uz.qr.hash });
+    &#60;/script&#62;
+
+</code></pre>
+<br>
+
+<button onclick="history.back()">Go Back</button>
+<a href="03-offline.html"><button>Next Topic</button></a>

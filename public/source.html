@@ -1,0 +1,202 @@
+<head>
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Full Screen">
+    <meta name="pinterest" content="nopin">
+    <meta name="referrer" content="origin">
+    <meta property="og:type" content="webapp">
+    <meta property="og:title" content="Electronic Cash Demo">
+    <meta property="og:description" content="Electronic Cash Demo is an offline electronic cash">
+    <meta property="og:image" content="assets/images/og.jpg">
+    <meta property="og:url" content="https://ecash-demo.web.app">
+    <meta name="twitter:card" content="Summary">
+    <meta name="twitter:title" content="Electronic Cash Demo">
+    <meta name="twitter:description" content="Electronic Cash Demo is an offline electronic cash">
+    <meta name="twitter:image" content="assets/images/og.jpg">
+    <meta name="twitter:url" content="https://ecash-demo.web.app">
+    <meta name="description" content="Electronic Cash Demo is an offline electronic cash">
+    <meta name="application-name" content="Electronic Cash Demo">
+    <meta name="keywords" content="finance,electronic,cash">
+    <meta name="author" content="Electronic Cash Demo">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/favicon.png">
+    <title>Electronic Cash Demo</title>
+    <link rel="icon" type="image/png" href="./assets/images/favicon.png" />
+    <link rel="stylesheet" href="assets/css/style.css">    
+</head>
+<body>
+    <div class="ex-container">
+        <div class="ex-pre-loader">
+            <h2>Connecting...</h2>
+        </div>
+    </div>
+    <div class="ex-container" hidden>
+        <div id="api-404" hidden></div>
+        <div class="ex-title">
+            <div class="ex-image-holder">
+                <img src="assets/images/ecash.png" alt="ecash.png"/>
+            </div>
+            <h3>Electronic Cash Demo</h3>
+        </div>
+        <div class="ex-balance">...</div>
+        <div class="ex-row">
+            <div>
+                <h5>ACCOUNT DETAILS</h5>
+                <p>
+                    <strong>ACCOUNT NAME</strong><br/>
+                    <input class="account-name" onkeyup="if (event.keyCode === 13) changeName({ name: this.value })"/>
+                    <div class="ex-button" onclick="changeName({ name: document.querySelector('.account-name').value })">Submit</div>
+                </p>
+                <p>
+                    <strong>ACCOUNT NO</strong><br/>
+                    <span class="account-number"></span>
+                </p>
+                <p>
+                    <strong>PROTOCOL</strong><br/>
+                    <span class="account-protocol"></span>
+                </p>
+            </div>
+        </div>
+        <div id="scan-qr-cont" class="ex-row" style="display: none;">
+            <div class="ex-button" onclick="document.getElementById('qr-scanner').style.display = document.getElementById('scan-qr-cont').style.display = 'none'; delete _uz.z.qrScan.arr">X</div>
+            <input hidden class="progress-bar" type="range" step="1" min="0" max="100" value="0"/>
+            <div id="qr-scanner"></div>
+        </div>
+        <div class="ex-button" onclick="scanQRCodes({})">Scan QR</div>
+        <div id="show-qr-cont" class="ex-row" style="display: none;">
+            <div class="ex-button" onclick="document.querySelector('.qr-cont').innerHTML = ''; document.getElementById('show-qr-cont').style.display = 'none'">X</div>
+            <div class="qr-cont"></div>
+        </div>
+        <div class="ex-button" onclick="hashAccount({})">Show QR</div>
+        <div class="ex-row">
+            <div>
+                <h5>TRANSFER</h5>
+                <p>
+                    <strong>ACCOUNT NAME</strong><br/>
+                    <span class="beneficiary-name"></span>
+                </p>
+                <p>
+                    <strong>ACCOUNT NO</strong><br/>
+                    <span class="beneficiary-number"></span>
+                </p>
+                <p>
+                    <input class="beneficiary-currency" type="text" onkeyup="if (event.keyCode === 13) changeCurrency({ currency: this.value })"/>
+                    <div class="ex-button" onclick="changeCurrency({ currency: document.querySelector('.beneficiary-currency').value })">Change</div>
+                </p>
+                <p>
+                    <input class="beneficiary-amount" type="text" value="0"/>
+                    <div class="ex-button" onclick="this.style.display = 'none'; transferAmount({})">Transfer</div>    
+                </p>
+            </div>
+        </div>
+        <br>
+        <div class="ex-button" onclick="window.open('https://ecash-dummy.web.app')">ECash Dummy Supply</div>
+        <div class="ex-loading"></div>
+    </div>
+</body>
+<script src="./assets/js/ecash.js"></script>
+<script src="assets/js/qr.reader.js"></script>
+<script type="module">
+    // QR OPERATIONS
+    import QrCreator from "./assets/js/qr.creator.js";
+    _uz.z = { qrScan: { arr: [], hashes: [] }, digit: { height: 12 }, slider: { single: {} } };
+    _uz.qr = { length: 72, delay: 128, interval: 0, hash: "9h65t34t31p7s&83*4392*81839e5c732a8181sh232%ic421o232n490s$321w23e59b$a472p921p" };
+
+    // Scan QR
+    window.scanQr = function(d) {
+        _uz.qrReader = _uz.qrReader ? _uz.qrReader : {};
+        if (!_uz.qrReader.JsQR) {
+            _uz.qrReader.JsQR = new JsQRScanner(onScan);
+            _uz.qrReader.JsQR.setSnapImageMaxSize(300);
+            if (_uz.qr.interval !== undefined) _uz.qrReader.JsQR.setScanInterval(_uz.qr.interval);
+            d.e = document.getElementById("qr-scanner");
+            if (d.e) _uz.qrReader.JsQR.appendTo(d.e);
+        }
+        document.getElementById('scan-qr-cont').style.display = 'block'
+        setTimeout(() => {
+            document.querySelector(".ex-loading").style.display = "none";
+        }, 2400);
+    };
+    window.onScan = function(s) {
+        if (!_uz.z.qrScan.arr.includes(s)) {
+            s = s.replace(/[!\"#$%&]/g, ",").split(",");
+            let j = s[0];
+            s = s.join(",");
+            for (let i = 81; i <= 90; i++)
+                s = s.replace(new RegExp(String.raw`${String.fromCharCode(i)}`, "g"), String.fromCharCode(i - 33));
+            _uz.z.qrScan.arr.push(j + s.slice(j.length));
+            for (let i = 0, j; i < _uz.z.qrScan.arr.length; i++) {
+                j = _uz.z.qrScan.arr[i].split(",");
+                _uz.z.qrScan.hashes[j[2]] = j[0];
+                _uz.z.qrScan.hlen = j[1];
+            }
+            let p = document.getElementsByClassName("progress-bar")[0];
+            if (_uz.z.qrScan.arr.length > 1 && p) {
+                if (!_uz.qrReader.progress) {
+                    _uz.qrReader.progress = { e: p };
+                    if (_uz.qrReader.progress.e) {
+                        _uz.qrReader.progress.e.style.display = "block";
+                        _uz.qrReader.progress.e.max = _uz.z.qrScan.hlen;
+                    }
+                }
+                _uz.qrReader.progress.e.value = Object.keys(_uz.z.qrScan.hashes).length;
+            }
+            _uz.api.contentWindow.postMessage({ action: "ecash-api-hash-assemble", qrScan: _uz.z.qrScan }, _uz.api.src);
+        };
+    };
+    window.JsQRScannerReady = function(d) {
+        _uz.z.qrScan.ready = !0;
+    };
+    document.getElementById("api-404").appendChild(_uz.api);
+
+    // Show QR
+    window.createQr = function(d) {
+        if (d.s) {
+            d.q = document.querySelector(".qr-cont");
+            if (d.q) _uz.api.contentWindow.postMessage({ action: "ecash-api-hash-fragment", hash: d.s, length: _uz.qr.length }, _uz.api.src);
+        }
+    };
+    window.drawQr = function(d) {
+        QrCreator.render({ text: d.piece, radius: "0.5", ecLevel: "H", fill: "#fff", background: null, size: "512" }, document.querySelector(d.id));
+    };
+
+    // OPERATION TRIGGERS
+    // Show my account QR
+    window.hashAccount = function(d) {
+        document.querySelector(".ex-loading").style.display = "block";
+        _uz.api.contentWindow.postMessage({ action: "ecash-api-hash-account" }, _uz.api.src);
+    };
+    // Scan QRs [Account or ECash]
+    window.scanQRCodes = function(d) {
+        document.querySelector(".ex-loading").style.display = "block";
+        scanQr({});
+    };
+    // Transfer ECash
+    window.transferAmount = function(d) {
+        document.querySelector(".ex-loading").style.display = "block";
+        _uz.api.contentWindow.postMessage({
+            action: "ecash-api-transfer-amount",
+            currency: document.querySelector(".beneficiary-currency").value,
+            range: document.querySelector(".beneficiary-amount").value
+        }, _uz.api.src);
+    };
+    // Change currency
+    window.changeCurrency = function(d) {
+        document.querySelector(".ex-loading").style.display = "block";
+        _uz.api.contentWindow.postMessage({ action: "ecash-api-change-currency", currency: d.currency }, _uz.api.src);        
+    };
+    // Change name
+    window.changeName = function(d) {
+        _uz.api.contentWindow.postMessage({ action: "ecash-api-change-name", name: d.name }, _uz.api.src);
+    };
+    _uz.qrhash({ hash: _uz.qr.hash });
+</script>

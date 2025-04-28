@@ -1,0 +1,101 @@
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+<style>
+    body {
+        margin: 42px 24px;
+    }
+    p {
+        font-size: 19px;
+    }
+</style>
+
+<title>Tutorials - Offline</title>
+<h1>Tutorials - Offline</h1>
+<h2>Topic 0.3</h2>
+
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+
+<p>Install the offline js file to allow remote operation even when the internet is not available.</p>
+
+<p>In the repository folder look for the file <code class="language-javascript">offline.js</code> and add the line below in your html page.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    let _o = {
+        name: "webapp-v001",
+        offline: "index.html", 
+        caches: [
+            // Add the file(s) you want to run offline...
+            // example: "ecash-supply.js" or "qr.cache.js" or "some-html-page.html"
+        ]
+    };
+    _o.caches.push(_o.offline);
+    this.addEventListener("install", async (e) => {
+        try {
+            e.cache = await caches.open(_o.name);
+            await e.cache.addAll(_o.caches);
+        } catch (error) {}
+    });
+    this.addEventListener("fetch", (e) => {
+        e.respondWith(
+            (async () => {
+                e.cache = await caches.open(_o.name);
+                try {
+                    e.response = await e.cache.match(e.request);
+                    if (e.response) return e.response;
+                    e.response = await fetch(e.request);
+                    if (e.response) {
+                        await e.cache.put(e.request, e.response.clone());
+                        return e.response;
+                    };
+                } catch (err) {
+                    return await e.cache.match(_o.offline);
+                }
+            })()
+        );
+    });
+
+</code></pre>
+<br>
+
+<p>In the <code class="language-javascript">ecash-supply.js</code> set the offline flag to <code class="language-javascript">!0 or true</code>.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    _uz = { offline: !1 };
+
+    // or
+    
+    _uz = { offline: true };
+
+</code></pre>
+
+<p>In the <code class="language-javascript">ecash-supply.js</code> you should see the offline function if not copy and paste the code into the <code class="language-javascript">ecash-supply.js</code> file or directly in the html page.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    if (navigator.onLine && _uz.offline && "serviceWorker" in navigator)
+    navigator.serviceWorker
+        .register("offline.js")
+        .then((registration) => {})
+        .catch((err) => {});
+
+</code></pre>
+
+<p>or</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;script&#62;
+        if (navigator.onLine && _uz.offline && "serviceWorker" in navigator)
+        navigator.serviceWorker
+            .register("offline.js")
+            .then((registration) => {})
+            .catch((err) => {});
+    &#60;/script&#62;
+
+</code></pre>
+
+<button onclick="history.back()">Go Back</button>
+<a href="11-received-information.html"><button>Next Topic</button></a>

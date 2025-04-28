@@ -1,0 +1,244 @@
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+<style>
+    body {
+        margin: 42px 24px;
+    }
+    p {
+        font-size: 19px;
+    }
+</style>
+<title>Tutorials - Receive Information</title>
+<h1>Tutorials - Receive Information</h1>
+<h2>Topic 1.1</h2>
+
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+
+<p>For a beneficiary to receive electronic cash from a benefactor, the beneficiary's electronic cash address must be obtained by the benefactor. In this tutorial QR code is used to receive the user information or the electronic cash transfers via the device's screen and camera.</p>
+
+<div id="api-404" hidden></div>
+
+<div id="scan-qr-cont" style="display: none;">
+    <div onclick="document.getElementById('qr-scanner').style.display = document.getElementById('scan-qr-cont').style.display = 'none'; delete _uz.z.qrScan.arr">X</div>
+    <input hidden class="progress-bar" type="range" step="1" min="0" max="100" value="0"/>
+    <div id="qr-scanner"></div>
+    <br>
+</div>
+
+<p><strong><span class="beneficiary-name"></span></strong></p>
+<p><strong><span class="beneficiary-number"></span></strong></p>
+
+<button onclick="scanQRCodes({});">Scan QR</button>
+<br>
+
+<p>Install the QR code reader library to capture QR code from the device camera.</p>
+
+<p>In the repository folder look for the file <code class="language-javascript">qr.reader.js</code> and add the line below in the html page.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#62;script src="assets/js/qr.reader.js"&#62;&#60;/script&#62;
+    
+</code></pre>
+<br>
+
+<p>Call the function below to scan QR codes.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    function scanQRCodes(d) {
+        scanQr({});
+    };
+
+</code></pre>
+<br>
+
+<p>Add element to display the QR code.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;div id="scan-qr-cont" style="display: none;"&#62;
+        &#60;input hidden class="progress-bar" type="range" step="1" min="0" max="100" value="0"/&#62;
+        &#60;div id="qr-scanner"&#62;&#60;/div&#62;
+    &#60;/div&#62;
+
+</code></pre>
+<br>
+
+<p>Add post message listener to get the received QR code information.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    window.addEventListener("message", windowEvent);
+
+    windowEvent function (e) {
+        if (e.type.match(/(message)/)) try {
+            _uz.session = !_uz.session ? e.data.session : _uz.session;
+            if (e.data.action && e.data.action.match(/(ecash-api)/)) {
+
+                if (e.data.action && e.data.action.match(/(response)/)) {
+                    
+                    if (data.action && data.action.match(/(hash-assemble)/)) {
+                        let d = JSON.parse(data.object);
+                        if (d.r) {
+                            if (d.r && d.ah) {
+                                localStorage.beneficiary = JSON.stringify(d.ah);
+                                document.querySelector(".beneficiary-name").innerHTML = d.ah.name;
+                                document.querySelector(".beneficiary-number").innerHTML = d.ah.number;
+                                document.querySelector(".beneficiary-currency").innerHTML = _uz.local.account.currency;
+                            };
+                            if (d.l) {
+                                if (d.r && d.l.received > 0) {
+                                    alert(`${
+                                        (d.l.currency ? `${d.l.currency}${d.l.received}` : `No`)
+                                    } electronic cash is transferred into your account ${
+                                        (d.l.ratio && d.l.ratio < 1 ? ` and ${
+                                            (100 - parseFloat(d.l.ratio) * 100).toFixed(0)
+                                        }% counterfiet is rejected!` : "")
+                                    }`);
+                                } else alert(`Electronic cash is spent`);
+                            }
+                            delete _uz.z.qrScan.hashes;
+                            delete _uz.z.qrScan.arr;
+                        } else alert(`Wrong QR codes`);
+                    };
+
+                };
+
+            };
+        } catch (error) {};
+    };
+
+</code></pre>
+<br>
+
+<p>Add functions below to read the received QR code information from the device camera.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    function scanQr(d) {
+        _uz.qrReader = _uz.qrReader ? _uz.qrReader : {};
+        if (!_uz.qrReader.JsQR) {
+            _uz.qrReader.JsQR = new JsQRScanner(onScan);
+            _uz.qrReader.JsQR.setSnapImageMaxSize(300);
+            if (_uz.qr.interval !== undefined) _uz.qrReader.JsQR.setScanInterval(_uz.qr.interval);
+            d.e = document.getElementById("qr-scanner");
+            if (d.e) _uz.qrReader.JsQR.appendTo(d.e);
+        }
+        document.getElementById('scan-qr-cont').style.display = 'block'
+        setTimeout(() => {
+            document.querySelector(".ex-loading").style.display = "none";
+        }, 2400);
+    };
+
+    function onScan(s) {
+        if (!_uz.z.qrScan.arr.includes(s)) {
+            s = s.replace(/[!\"#$%&]/g, ",").split(",");
+            let j = s[0];
+            s = s.join(",");
+            for (let i = 81; i <= 90; i++)
+                s = s.replace(new RegExp(String.raw`${String.fromCharCode(i)}`, "g"), String.fromCharCode(i - 33));
+            _uz.z.qrScan.arr.push(j + s.slice(j.length));
+            for (let i = 0, j; i < _uz.z.qrScan.arr.length; i++) {
+                j = _uz.z.qrScan.arr[i].split(",");
+                _uz.z.qrScan.hashes[j[2]] = j[0];
+                _uz.z.qrScan.hlen = j[1];
+            }
+            let p = document.getElementsByClassName("progress-bar")[0];
+            if (_uz.z.qrScan.arr.length > 1 && p) {
+                if (!_uz.qrReader.progress) {
+                    _uz.qrReader.progress = { e: p };
+                    if (_uz.qrReader.progress.e) {
+                        _uz.qrReader.progress.e.style.display = "block";
+                        _uz.qrReader.progress.e.max = _uz.z.qrScan.hlen;
+                    }
+                }
+                _uz.qrReader.progress.e.value = Object.keys(_uz.z.qrScan.hashes).length;
+            }
+            _uz.api.contentWindow.postMessage({ action: "ecash-api-hash-assemble", qrScan: _uz.z.qrScan }, _uz.api.src);
+        };
+    };
+
+    function JsQRScannerReady(d) {
+        _uz.z.qrScan.ready = !0;
+    };
+
+</code></pre>
+<br>
+
+<p>The developer may use alternative methods other than a QR code, such as network or internet to receive the user electronic cash address.</p>
+<br>
+
+<button onclick="history.back()">Go Back</button>
+<a href="12-create-electronic-cash.html"><button>Next Topic</button></a>
+
+<script src="./assets/js/ecash-supply.js"></script>
+
+<script src="assets/js/qr.reader.js"></script>
+
+<script>
+    document.getElementById("api-404").appendChild(_uz.api);
+
+    _uz.z = { qrScan: { arr: [], hashes: [] }, digit: { height: 12 }, slider: { single: {} } };
+    _uz.qr = {
+        length: 72,
+        delay: 128,
+        interval: 0,
+        hash: "89h574t23t147p469s78&7879*45871*4556e54c1a746s585h256%4765p548u5458b4583l256i548c754$325w2521e47b968$32a11p5689p9"
+    };
+    
+    _uz.qrhash({ hash: _uz.qr.hash });
+</script>
+
+<script>
+    function scanQr(d) {
+        _uz.qrReader = _uz.qrReader ? _uz.qrReader : {};
+        if (!_uz.qrReader.JsQR) {
+            _uz.qrReader.JsQR = new JsQRScanner(onScan);
+            _uz.qrReader.JsQR.setSnapImageMaxSize(300);
+            if (_uz.qr.interval !== undefined) _uz.qrReader.JsQR.setScanInterval(_uz.qr.interval);
+            d.e = document.getElementById("qr-scanner");
+            if (d.e) _uz.qrReader.JsQR.appendTo(d.e);
+        }
+        document.getElementById('scan-qr-cont').style.display = 'block';
+    };
+
+    function onScan(s) {
+        if (!_uz.z.qrScan.arr.includes(s)) {
+            s = s.replace(/[!\"#$%&]/g, ",").split(",");
+            let j = s[0];
+            s = s.join(",");
+            for (let i = 81; i <= 90; i++)
+                s = s.replace(new RegExp(String.raw`${String.fromCharCode(i)}`, "g"), String.fromCharCode(i - 33));
+            _uz.z.qrScan.arr.push(j + s.slice(j.length));
+            for (let i = 0, j; i < _uz.z.qrScan.arr.length; i++) {
+                j = _uz.z.qrScan.arr[i].split(",");
+                _uz.z.qrScan.hashes[j[2]] = j[0];
+                _uz.z.qrScan.hlen = j[1];
+            }
+            let p = document.getElementsByClassName("progress-bar")[0];
+            if (_uz.z.qrScan.arr.length > 1 && p) {
+                if (!_uz.qrReader.progress) {
+                    _uz.qrReader.progress = { e: p };
+                    if (_uz.qrReader.progress.e) {
+                        _uz.qrReader.progress.e.style.display = "block";
+                        _uz.qrReader.progress.e.max = _uz.z.qrScan.hlen;
+                    }
+                }
+                _uz.qrReader.progress.e.value = Object.keys(_uz.z.qrScan.hashes).length;
+            }
+            _uz.api.contentWindow.postMessage({ action: "ecash-api-hash-assemble", qrScan: _uz.z.qrScan }, _uz.api.src);
+        };
+    };
+
+    function JsQRScannerReady(d) {
+        _uz.z.qrScan.ready = !0;
+    };
+</script>
+
+<script>
+    function scanQRCodes(d) {
+        scanQr({});
+    };
+</script>
