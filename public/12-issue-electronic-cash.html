@@ -1,0 +1,197 @@
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+<style>
+    body {
+        margin: 42px 24px;
+    }
+    p {
+        font-size: 19px;
+    }
+    input {
+        font-size: 21px;
+    }
+    #show-qr-cont {
+        color: white;
+    }
+</style>
+<title>Tutorials - Issue Electronic Cash</title>
+<h1>Tutorials - Issue Electronic Cash</h1>
+<h2>Topic 1.2</h2>
+
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+
+<div id="api-404" hidden></div>
+
+<h3>Step 1</h3>
+<p>Scan the beneficiary's QR code to acquires his or her electronic cash address.</p>
+1.1 <button onclick="location.href='11-received-information.html'">Scan QR</button>
+<br>
+<br>
+
+<div id="step2-cont" style="display: none;">
+    <h3>Step 2</h3>
+    <p>Check the beneficiary's information, specify the currency and amount to issue.</p>
+    <br>
+    <p><span class="beneficiary-name"></span></p>
+    <p><span class="beneficiary-number"></span></p>
+
+    <input class="ecash-series" type="text" value="1234.567-890123" placeholder="1234.567-890123"/>
+    <br>
+    <input class="ecash-source" type="text" value="Tutorial" placeholder="Tutorial"/>
+    <br>
+    <input class="ecash-currency" type="text" style="width: 60px;" value="Abc" placeholder="Abc"/>
+    <input class="ecash-amount" type="text" value="1000" placeholder="1000.00"/>
+    <br>
+    <br>
+    <button class="ex-button"
+        onclick="if(document.querySelector('.ecash-currency').value.length == 3) {
+            this.style.display = 'none'; issueBalance({});
+        } else alert('Please specify the currency?')">Issue</button>  
+    <br>
+    <br>
+</div>
+
+<div id="show-qr-cont" style="padding: 12px; display: none; background: #000;">
+    <h3>Step 3</h3>
+    <p>Show the electronic cash issue QR code to the beneficiary to scan until the issue is completed.</p>
+    <br>
+    <div onclick="document.querySelector('.qr-cont').innerHTML = ''; document.getElementById('show-qr-cont').style.display = 'none'" style="color: white;">X</div>
+    <div class="qr-cont"></div>
+    <br>
+    <h3>Step 4</h3>
+    <p>The beneficiary must scan the electronic cash issue QR code to complete the transaction.</p>
+    <p>Allow the beneficiary to complete the scan until a dialog message promts the issue is completed, failing to see the dialog message means the electronic cash issue is not received.</p>
+    <br>
+</div>
+
+<p>Call the function below to issue electronic cash.</p>
+
+SCRIPT
+<pre><code class="language-javascript">
+    function issueBalance(d) {
+        _uz.api.contentWindow.postMessage({
+            action: "ecash-api-issue-balance",
+            currency: document.querySelector(".ecash-currency").value,
+            amount: document.querySelector(".ecash-amount").value,
+            series: document.querySelector(".ecash-series").value,
+            name: document.querySelector(".ecash-source").value,
+            pid: _uz.beneficiary.pid,
+            pro: _uz.beneficiary.pro,
+            number: _uz.beneficiary.number
+        }, _uz.api.src);
+    };
+    
+</code></pre>
+<br>
+
+<p>Add elements below to display the beneficiary's information.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;p class="beneficiary-name"&#62;&#60;/p&#62;
+    &#60;p class="beneficiary-number"&#62;&#60;/p&#62;
+
+</code></pre>
+<br>
+
+<p>Add elements below to enter the currency and the amount to issue.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;input class="ecash-series" type="text" value="1234.567-890123" placeholder="1234.567-890123"/&#62;
+
+    &#60;input class="ecash-source" type="text" value="Tutorial" placeholder="Tutorial"/&#62;
+
+    &#60;input class="ecash-currency" type="text" style="width: 60px;" placeholder="Abc"/&#62;
+    &#60;input class="ecash-amount" type="text" value="0"/&#62;
+
+</code></pre>
+<br>
+
+<p>Install the QR code creator library to display the electronic cash issue QR code on the device screen.</p>
+
+<p>In the repository folder look for the file <code class="language-javascript">qr.creator.js</code> and add the lines below in the html page.</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;script type="module"&#62;
+        import QrCreator from "./assets/js/qr.creator.js";
+        // Your codes here...
+        // ...
+        // Your codes here...
+    &#60;/script&#62;
+    
+</code></pre>
+<br>
+
+<p>Add html element to show the QR code in your html page</p>
+
+HTML
+<pre><code class="language-javascript">
+    &#60;div id="show-qr-cont" style="display: none;"&#62;
+        &#60;div class="qr-cont"&#62;&#60;/div&#62;
+    &#60;/div&#62;
+
+</code></pre>
+<br>
+
+<button onclick="history.back()">Go Back</button>
+<a href="21-tutorial-completed.html"><button>Next Topic</button></a>
+
+<script src="./assets/js/ecash-supply.js"></script>
+
+<script type="module">
+    import QrCreator from "./assets/js/qr.creator.js";
+
+    document.getElementById("api-404").appendChild(_uz.api);
+
+    _uz.z = { qrScan: { arr: [], hashes: [] }, digit: { height: 12 }, slider: { single: {} } };
+    _uz.qr = {
+        length: 72,
+        delay: 128,
+        interval: 0,
+        hash: "89h574t23t147p469s78&7879*45871*4556e54c1a746s585h256%4765p548u5458b4583l256i548c754$325w2521e47b968$32a11p5689p9"
+    };
+    
+    _uz.qrhash({ hash: _uz.qr.hash });
+</script>
+
+<script>
+    function createQr(d) {
+        if (d.s) {
+            d.q = document.querySelector(".qr-cont");
+            if (d.q) _uz.api.contentWindow.postMessage({ action: "ecash-api-hash-fragment", hash: d.s, length: _uz.qr.length }, _uz.api.src);
+        }
+    };
+    
+    function drawQr(d) {
+        QrCreator.render({ text: d.piece, radius: "0.5", ecLevel: "H", fill: "#fff", background: null, size: "512" }, document.querySelector(d.id));
+    };
+</script>
+
+<script>
+    document.querySelector(".ecash-series").value += `-${(Math.floor(Math.random() * 100) + 1) * 1234.5678}`;
+    function issueBalance(d) {
+        _uz.api.contentWindow.postMessage({
+            action: "ecash-api-issue-balance",
+            currency: document.querySelector(".ecash-currency").value,
+            amount: document.querySelector(".ecash-amount").value,
+            series: document.querySelector(".ecash-series").value,
+            name: document.querySelector(".ecash-source").value,
+            pid: _uz.beneficiary.pid,
+            pro: _uz.beneficiary.pro,
+            number: _uz.beneficiary.number
+        }, _uz.api.src);
+    };
+</script>
+
+<script>
+    if (localStorage.beneficiary) {
+        _uz.beneficiary = JSON.parse(localStorage.beneficiary);
+        document.querySelector(".beneficiary-name").innerHTML = _uz.beneficiary.name;
+        document.querySelector(".beneficiary-number").innerHTML = _uz.beneficiary.number;
+        document.getElementById("step2-cont").style.display = "block";
+        // delete localStorage.beneficiary;
+    }
+</script>
